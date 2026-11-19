@@ -1,0 +1,44 @@
+{
+  "tools": [
+    {
+      "name": "sieve_selftest",
+      "description": "Run the compiled correctness suite (all wheel widths x both queue modes plus known pi(n)). Call this before any measurement job; it returns ok=false and a detail line when the build is stale or wrong.",
+      "parameters": {
+        "type": "object",
+        "properties": {},
+        "additionalProperties": false
+      }
+    },
+    {
+      "name": "sieve_count",
+      "description": "Count primes <= limit with the segmented sieve and report measured time, segment count and bit-clear count. All values come from the real bench binary.",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "limit": {"type": "integer", "minimum": 2, "maximum": 10000000000,
+                    "description": "Upper bound n; 1e10 is the practical ceiling (~21 s)."},
+          "wheel": {"type": "integer", "enum": [2, 30, 210],
+                    "description": "Wheel modulus: 2 = odd-only, 30 = 8 residues, 210 = 48 residues."},
+          "bucket": {"type": "boolean", "description": "Use the cross-segment queue for far primes."},
+          "segment_kb": {"type": "integer", "enum": [4, 8, 16, 32, 64, 128, 256]},
+          "reps": {"type": "integer", "minimum": 1, "maximum": 5,
+                   "description": "Repetitions; the minimum time is reported."}
+        },
+        "required": ["limit"]
+      }
+    },
+    {
+      "name": "sieve_autotune",
+      "description": "Run a two-stage parameter search (coarse screen over wheel x bucket x segment at 1e7, then validate the top candidates at the target limit) and return the ranked measurements plus the winning configuration.",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "limit": {"type": "integer", "minimum": 2, "maximum": 10000000000},
+          "budget_seconds": {"type": "integer", "minimum": 5, "maximum": 180,
+                             "description": "Wall-clock budget for the whole search."}
+        },
+        "required": ["limit"]
+      }
+    }
+  ]
+}

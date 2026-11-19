@@ -43,14 +43,35 @@ bash experiments/sweep.sh          # 重新跑全部扫描，结果追加到 exp
 
 `bench` 输出一行的 CSV：`limit,wheel,bucket,segment_kb,reps,seconds,primes,segments,marks`。取 `reps` 次中的**最短**耗时以降低噪声；正确性每行都核对 `primes`。
 
+## Bot 集成（DevinBot 等自动化 Agent）
+
+仓库自带一层 Bot 适配：Bot 通过**原生 function calling** 调三个 HTTP 工具，不接触 C++ 或 CSV。完整联调说明见 [`docs/DEVINBOT_INTEGRATION.md`](docs/DEVINBOT_INTEGRATION.md)。
+
+| 组件 | 作用 |
+|------|------|
+| `bot/bridge.py` | stdlib HTTP 服务（默认 127.0.0.1:8787），把 count / autotune / selftest 转成对真实二进制的调用，带超时与参数白名单 |
+| `bot/tools.json` | 标准 JSON Schema 工具定义，直接注册给 Bot |
+| `bot/selftest_hook.sh` | 任务前 preflight：正确性套件 + 输出契约 + 工具 schema + git sha |
+| `tests/test_bot_bridge.py` | 端到端测试：真起服务、真跑二进制，覆盖成功与错误路径 |
+| `.github/workflows/ci.yml` | 构建 → ctest → preflight → bridge 端到端，全绿才算通过 |
+
+自动调参是**两阶段受控搜索**：10⁷ 上粗筛 18 组（轮宽 × 跨段队列 × 段大小），再在目标 n 上复验 Top-3，预算硬截断。示例（n=10⁹，预算 60s，实测 12.47s）：18 组筛完，winner `wheel=210, seg=64KB`。
+
+```sh
+cmake -S . -B build -DCMAKE_BUILD_TYPE=Release && cmake --build build -j
+bash bot/selftest_hook.sh
+python3 tests/test_bot_bridge.py
+```
+
 ## 目录
 
 ```
 src/               轮表、跨段队列、筛法核心、独立对照计数器
 tools/bench.cpp    测量驱动（CLI → CSV）
 tests/check.cpp    正确性全组合测试
+bot/               Bot 适配层：HTTP bridge、工具 schema、preflight hook
 experiments/       原始 CSV、实验脚本、结果解读
-docs/              设计与方法学
+docs/              设计、方法学、Bot 联调说明
 ```
 
 ## 许可
