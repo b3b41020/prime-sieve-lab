@@ -47,7 +47,7 @@ bash experiments/sweep.sh          # 重新跑全部扫描，结果追加到 exp
 
 `--threads N` 走并行引擎：**协调器单线程簿记跨段队列 + 工作线程只读不可变作业清单 + 位图按块切片空间隔离 + 层级规则时间隔离**。竞态从结构上消除，并用「marks 与线程数无关」这一可证判据守住（`tests/check_parallel.cpp`）。
 
-实测（8 逻辑核 VM）：10⁹ → 1.91s → 0.50s（8 线程，3.8×）；10¹⁰ → 21.2s → 7.4s（2.9×）。设计论证见 [`docs/parallelization.md`](docs/parallelization.md)，原始数据 [`experiments/PARALLEL.csv`](experiments/PARALLEL.csv)。
+实测（8 逻辑核 VM）：10⁹ → 1.90s → 0.45s（8 线程，最高 4.2×）；10¹⁰ → 21.2s → 7.9s（2.7×）。设计论证见 [`docs/parallelization.md`](docs/parallelization.md)，原始数据 [`experiments/PARALLEL.csv`](experiments/PARALLEL.csv)。
 
 ```sh
 ./build/bench --n 1g --wheel 210 --bucket 1 --seg-kb 32 --threads 8

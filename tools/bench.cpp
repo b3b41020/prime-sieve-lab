@@ -47,12 +47,11 @@ int main(int argc, char** argv) {
     else if (!std::strcmp(argv[i], "--header")) header = true;
     else { usage(); return 2; }
   }
-  if (!n || reps < 1) { usage(); return 2; }
-
   if (header) {
     std::printf("limit,wheel,bucket,segment_kb,reps,seconds,primes,segments,marks,threads\n");
     return 0;
   }
+  if (!n || reps < 1) { usage(); return 2; }
 
   sielab::Stats st;
   double best = 1e100;
