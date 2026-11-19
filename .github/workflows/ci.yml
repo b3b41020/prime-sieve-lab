@@ -13,7 +13,7 @@ jobs:
         run: cmake -S . -B build -DCMAKE_BUILD_TYPE=Release
       - name: Build
         run: cmake --build build -j
-      - name: C++ correctness suite
+      - name: C++ correctness suite (serial + parallel determinism)
         run: ctest --test-dir build --output-on-failure
       - name: Bot preflight self-test hook
         run: bash bot/selftest_hook.sh

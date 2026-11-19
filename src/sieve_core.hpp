@@ -12,6 +12,9 @@ struct Options {
   std::uint32_t wheel = 210;        // 2 = odd-only, 30, 210
   bool bucket = true;               // bucket re-dispatch for far primes
   std::size_t segment_bytes = 32768;
+  // Test hook: only primes >= crossing_from are treated as "far" crossings.
+  // 0 = auto (2*prime >= segment_size tier rule).
+  std::uint64_t crossing_from = 0;
 };
 
 struct Stats {

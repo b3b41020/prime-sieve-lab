@@ -41,7 +41,17 @@ bash experiments/sweep.sh          # 重新跑全部扫描，结果追加到 exp
 ./build/bench --n 1g --wheel 210 --bucket 1 --seg-kb 32 --reps 3
 ```
 
-`bench` 输出一行的 CSV：`limit,wheel,bucket,segment_kb,reps,seconds,primes,segments,marks`。取 `reps` 次中的**最短**耗时以降低噪声；正确性每行都核对 `primes`。
+`bench` 输出一行的 CSV：`limit,wheel,bucket,segment_kb,reps,seconds,primes,segments,marks,threads`。取 `reps` 次中的**最短**耗时以降低噪声；正确性每行都核对 `primes`。
+
+## 并行化（多线程，无竞态）
+
+`--threads N` 走并行引擎：**协调器单线程簿记跨段队列 + 工作线程只读不可变作业清单 + 位图按块切片空间隔离 + 层级规则时间隔离**。竞态从结构上消除，并用「marks 与线程数无关」这一可证判据守住（`tests/check_parallel.cpp`）。
+
+实测（8 逻辑核 VM）：10⁹ → 1.91s → 0.50s（8 线程，3.8×）；10¹⁰ → 21.2s → 7.4s（2.9×）。设计论证见 [`docs/parallelization.md`](docs/parallelization.md)，原始数据 [`experiments/PARALLEL.csv`](experiments/PARALLEL.csv)。
+
+```sh
+./build/bench --n 1g --wheel 210 --bucket 1 --seg-kb 32 --threads 8
+```
 
 ## Bot 集成（DevinBot 等自动化 Agent）
 

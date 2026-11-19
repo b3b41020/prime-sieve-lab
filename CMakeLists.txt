@@ -10,6 +10,7 @@ endif()
 add_library(sieve_lab_core
   src/wheel_table.cpp
   src/sieve_core.cpp
+  src/sieve_parallel.cpp
   src/reference.cpp)
 target_include_directories(sieve_lab_core PUBLIC src)
 
@@ -20,3 +21,10 @@ enable_testing()
 add_executable(check tests/check.cpp)
 target_link_libraries(check PRIVATE sieve_lab_core)
 add_test(NAME correctness COMMAND check)
+
+find_package(Threads REQUIRED)
+target_link_libraries(sieve_lab_core PUBLIC Threads::Threads)
+
+add_executable(check_parallel tests/check_parallel.cpp)
+target_link_libraries(check_parallel PRIVATE sieve_lab_core)
+add_test(NAME parallel_correctness COMMAND check_parallel)

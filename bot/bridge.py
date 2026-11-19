@@ -32,7 +32,7 @@ _lock = threading.Lock()
 _last_selftest: dict | None = None
 
 FIELDS = ("limit", "wheel", "bucket", "segment_kb", "reps", "seconds",
-          "primes", "segments", "marks")
+          "primes", "segments", "marks", "threads")
 
 
 def git_sha() -> str:
